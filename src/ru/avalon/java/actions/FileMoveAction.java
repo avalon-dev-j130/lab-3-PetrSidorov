@@ -11,36 +11,35 @@ import java.nio.file.StandardCopyOption;
  * пространства.
  */
 public class FileMoveAction implements Action {
-    String source;
-    String target;
-    String nameFile;
-    Thread thread;
+    private String sourcePath;
+    private String targetPath;
+    private String fileName;
+    private Thread moveThread;
 
-    public FileMoveAction(String source, String target, String nameFile) {
-        this.source = source;
-        this.target = target;
-        this.nameFile = nameFile;
-        thread = new Thread(this,"move");
-        thread.start();
+    public FileMoveAction(String sourcePath, String targetPath, String fileName) {
+        this.sourcePath = sourcePath;
+        this.targetPath = targetPath;
+        this.fileName = fileName;
+        moveThread = new Thread(this, "moveFile");
+        moveThread.start();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void run() {
         /*
          * TODO №4 Реализуйте метод run класса FileMoveAction
          */
-        String file = target + "\\" + nameFile;
-            Path newFilePath = Paths.get(file);
-            try {
-                Files.createFile(newFilePath);
-                Files.copy(Paths.get(source), Paths.get(file),
-                        StandardCopyOption.REPLACE_EXISTING);
-
-                Files.delete(Paths.get(source));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
+        String fullPath = targetPath + "/" + fileName;
+        try {
+            Files.createFile(Paths.get(fullPath));
+            Files.copy(Paths.get(sourcePath), Paths.get(fullPath), StandardCopyOption.REPLACE_EXISTING);
+            Files.delete(Paths.get(sourcePath));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -51,11 +50,11 @@ public class FileMoveAction implements Action {
         /*
          * TODO №5 Реализуйте метод close класса FileMoveAction
          */
-        System.out.println("Перемещение завершено, для завершения программы введите 'exit'");
+        System.out.println("Your file was successfully moved to the path " + this.targetPath +
+                "! \nTo finish print 'exit'.");
     }
 
-    public Thread getThread() {
-        return thread;
+    public Thread getMoveThread() {
+        return moveThread;
     }
-
 }

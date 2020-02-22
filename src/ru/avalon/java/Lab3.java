@@ -1,7 +1,10 @@
 package ru.avalon.java;
 
+import ru.avalon.java.actions.FileCopyAction;
+import ru.avalon.java.actions.FileCreateAction;
+import ru.avalon.java.actions.FileDeleteAction;
+import ru.avalon.java.actions.FileMoveAction;
 import ru.avalon.java.console.ConsoleUI;
-import ru.avalon.java.actions.*;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -41,98 +44,75 @@ public class Lab3 extends ConsoleUI<Commands> {
      */
     @Override
     protected void onCommand(Commands command) throws IOException {
-        String source;
-        String target;
-        String[] nameFile;
-        BufferedReader br;
-
+        String sourcePath;
+        String targetPath;
+        String[] fileName;
+        BufferedReader reader;
         switch (command) {
-            case copy:
-                /*
-                 * TODO №6 Обработайте команду copy
-                 */
-                br = new BufferedReader(new
-                                    InputStreamReader(System.in));
-
-                System.out.print("Откуда копируем: ");
-                source = br.readLine();
-                System.out.println(source);
-                System.out.print("Куда копируем: ");
-                target = br.readLine();
-                System.out.println(target);
-                FileCopyAction fileCopy = new FileCopyAction(source, target);
-
-                if(fileCopy.getThread().isAlive()) {
+            case create:
+                reader = new BufferedReader(new InputStreamReader(System.in));
+                System.out.println("Target directory of the new file: ");
+                targetPath = reader.readLine();
+                FileCreateAction createAction = new FileCreateAction(targetPath);
+                createAction.start();
+                if(createAction.getCreateThread().isAlive()){
                     try {
-                        fileCopy.close();
+                        createAction.close();
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
-
+                break;
+            case copy:
+                /*
+                 * TODO №6 Обработайте команду copy
+                 */
+                reader = new BufferedReader(new InputStreamReader(System.in));
+                System.out.print("Source directory of file to be copied: ");
+                sourcePath = reader.readLine();
+                System.out.print("Target directory of the copied file: ");
+                targetPath = reader.readLine();
+                FileCopyAction copyAction = new FileCopyAction(sourcePath, targetPath);
+                if(copyAction.getCopyThread().isAlive()) {
+                    try {
+                        copyAction.close();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
                 break;
             case move:
                 /*
                  * TODO №7 Обработайте команду move
                  */
-                br = new BufferedReader(new
-                        InputStreamReader(System.in));
-
-                System.out.print("Откуда перемещаем: ");
-                source = br.readLine();
-                nameFile = source.split("\\\\");
-                System.out.println(source);
-                System.out.print("Куда перемещаем: ");
-                target = br.readLine();
-                System.out.println(target);
-                FileMoveAction fileMove = new FileMoveAction(source, target, nameFile[nameFile.length-1]);
-
-                if(fileMove.getThread().isAlive()) {
+                reader = new BufferedReader(new InputStreamReader(System.in));
+                System.out.print("Source directory of file to be moved: ");
+                sourcePath = reader.readLine();
+                fileName = sourcePath.split("/");
+                System.out.print("Target directory of the moved file: ");
+                targetPath = reader.readLine();
+                FileMoveAction moveAction = new FileMoveAction(sourcePath, targetPath, fileName[fileName.length-1]);
+                if(moveAction.getMoveThread().isAlive()) {
                     try {
-                        fileMove.close();
+                        moveAction.close();
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
-
                 break;
             case delete:
-
-                br = new BufferedReader(new
-                        InputStreamReader(System.in));
-
-                System.out.print("Откуда удаляем файл: ");
-                target = br.readLine();
-                FileDeleteAction fileDelete = new FileDeleteAction(target);
-
-                if(fileDelete.getThread().isAlive()) {
+                reader = new BufferedReader(new InputStreamReader(System.in));
+                System.out.print("Source directory of file to be deleted: ");
+                targetPath = reader.readLine();
+                FileDeleteAction deleteAction = new FileDeleteAction(targetPath);
+                if(deleteAction.getDeleteThread().isAlive()) {
                     try {
-                        fileDelete.close();
+                        deleteAction.close();
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
                 break;
-
-            case create:
-                br = new BufferedReader(new
-                        InputStreamReader(System.in));
-
-                System.out.print("Где создаем файл: ");
-                target = br.readLine();
-                System.out.println(target);
-                FileCreateAction fileCreate = new FileCreateAction(target);
-
-                if(fileCreate.getThread().isAlive()) {
-                    try {
-                        fileCreate.close();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-
-                break;
-
             case exit:
                 close();
                 break;

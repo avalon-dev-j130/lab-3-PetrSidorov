@@ -1,43 +1,43 @@
 package ru.avalon.java.actions;
 
 import java.io.*;
-import java.nio.*;
-import java.nio.channels.*;
-import java.nio.file.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 /**
  * Действие, которое копирует файлы в пределах дискового
  * пространства.
  */
 public class FileCopyAction implements Action {
-    String source;
-    String target;
-    Thread thread;
+    private String sourcePath;
+    private String targetPath;
+    private Thread copyThread;
 
-    public FileCopyAction(String source, String target) {
-        this.source = source;
-        this.target = target;
-        thread = new Thread(this,"copy");
-        thread.start();
+    public FileCopyAction(String sourcePath, String targetPath) {
+        this.sourcePath = sourcePath;
+        this.targetPath = targetPath;
+        copyThread = new Thread(this, "copyFile");
+        copyThread.start();
     }
+
+    /**
+     * {@inheritDoc}
+     */
+
 
     @Override
     public void run() {
         /*
          * TODO №2 Реализуйте метод run класса FileCopyAction
          */
-        try{
-            Files.copy(Paths.get(source), Paths.get(target),
-                        StandardCopyOption.REPLACE_EXISTING);
-        } catch (InvalidPathException e)  {
-            System.out.println("Ошибка указания пути " + e);
+        try {
+            Files.copy(Paths.get(sourcePath), Paths.get(targetPath));
         } catch (IOException e) {
-            System.out.println("Ошибка ввода-вывода " + e);
+            e.printStackTrace();
         }
-        //throw new UnsupportedOperationException("Not implemented yet!");
     }
 
-    /**
+        /**
      * {@inheritDoc}
      */
     @Override
@@ -45,10 +45,11 @@ public class FileCopyAction implements Action {
         /*
          * TODO №3 Реализуйте метод close класса FileCopyAction
          */
-        System.out.println("Копирование завершено, для завершения программы введите 'exit'");
+        System.out.println("Your file was successfully copied to the path " + this.targetPath +
+                "! \nTo finish print 'exit'.");
     }
 
-    public Thread getThread() {
-        return thread;
+    public Thread getCopyThread() {
+        return copyThread;
     }
 }
